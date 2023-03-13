@@ -11,7 +11,7 @@ spec:
     - name: git-url
       value: 'https://github.com/OpenShiftDemos/coolstore-portfolio.git'
     - name: git-branch
-      value: main
+      value: ocp
     - name: app-subdir
       value: customers-tomcat-gitops
     - name: target-namespace

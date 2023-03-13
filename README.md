@@ -27,20 +27,65 @@ Other setups may work as well, but Tekton 0.28.x or later is required for the pi
 
 ## Manual deployment in OCP
 
-The *customers-tomcat-ocp* directory from this repository contains the Customers Tomcat application with all the required changes for it to run in OCP. Inside the *ocp* subdirectory there is also a manifests file with the definition of the required objects to deploy it manually in OCP. In order to do that, the application image will have to be built locally and pushed to the OCP internal registry. It is important to note that the application WAR artifact has to be built with the following command before building the application:
+Create a coolstore project
 
-```
-mvn clean package -P kubernetes
-```
+Install pipelines operator
 
-Using the *kubernetes* profile in the build is essential for the application to pick up the configuration file injected via a secret in the pod. That secret has to be also created manually with the following command from the *customers-tomcat-ocp* directory:
+`oc new-project coolstore`
+### Deploy customers service
 
-```
-oc create secret generic customers-secret --from-file=src/main/resources/persistence.properties
-```
+Deploy postgresql for customers service
 
-Make sure that the configuration in the persistence.properties file points to the correct database when creating the secret.
+`oc new-app \
+    --name="customers-db" \
+    -e POSTGRESQL_USER=customers \
+    -e POSTGRESQL_PASSWORD=customers \
+    -e POSTGRESQL_DATABASE=customers \
+     --image-stream="openshift/postgresql:13-el7"`
 
+
+
+Run `helm install -f helm/customers-tomcat-ocp/values.yaml customers helm/customers-tomcat-ocp/`
+
+run `oc apply -f ./ocp-deploy/customers-pipeline-run.yaml`
+
+## deploy order service
+
+`oc new-app \
+    --name="postgresql-orders" \
+    -e POSTGRESQL_USER=orders \
+    -e POSTGRESQL_PASSWORD=orders \
+    -e POSTGRESQL_DATABASE=orders \
+     --image-stream="openshift/postgresql:13-el7"`
+
+     Run `helm install -f helm/orders/values.yaml orders helm/orders/`
+
+     
+## deploy inventory service
+
+`oc new-app \
+    --name="postgresql-inventory" \
+    -e POSTGRESQL_USER=inventory \
+    -e POSTGRESQL_PASSWORD=inventory \
+    -e POSTGRESQL_DATABASE=inventory \
+     --image-stream="openshift/postgresql:13-el7"`
+
+     Run `helm install -f helm/inventory/values.yaml inventory helm/inventory/`
+
+## deploy gateway service
+
+
+
+     Run `helm install -f helm/gateway/values.yaml gateway helm/gateway/`
+
+       
+## deploy frontend service
+
+
+
+     Run `helm install -f helm/frontend/values.yaml frontend helm/frontend/`
+
+   
 ## Deployment Pipeline in OCP
 
 As stated before, one of the main focus areas of this demo is to showcase a modern approach for CI/CD using a set of tools and practices around the GitOps paradigm. For that, a Deployment Pipeline for the Customers application has been developed using Tekton. The following diagram depicts all tasks to be executed by the pipeline and its interaction with external systems and tools:
