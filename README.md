@@ -85,6 +85,13 @@ run `oc apply -f ./ocp-deploy/customers-pipeline-run.yaml`
 
      Run `helm install -f helm/frontend/values.yaml frontend helm/frontend/`
 
+
+## Accessing the front-end
+
+Click on the external link from the ordersfrontend deployment.  You will see a ui as shown below:
+
+![Coosltore](docs/images/globex-customers.png "Customers page")
+
    
 ## Deployment Pipeline in OCP
 
