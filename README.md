@@ -15,140 +15,74 @@ The demo includes the following services:
 
 It can be argued that the domain is too fine grained for the modeled business, or that the approach is not optimal for data aggregation. While these statements might be true, the focus on the demo was to present a simple case with microservices interacting with each other, and shouldn't be considered a design aimed for a production solution.
 
-## Setup
+## Workshop instructions
 
-[Click here](simple-ocp-deploy.md) for instructions to deploy this demo using helm and OpenShift pipelines
+[Click here](workshop.md) for instructions to deploy this demo as part of the Modern Application Development workshop
+
+## OpenShift deployment instructions
 
 This demo has been developed using the following setup:
 
-- OpenShift Container Platform 4.9
+- OpenShift Container Platform 4.12
 - Red Hat OpenShift Pipelines Operator 1.6.2 (Tekton 0.28.3)
-- Red Hat OpenShift GitOps Operator 1.4.3
 
-Other setups may work as well, but Tekton 0.28.x or later is required for the pipeline and tasks to work.
-   
-## Deployment Pipeline in OCP
+## Manual deployment in OCP
 
-As stated before, one of the main focus areas of this demo is to showcase a modern approach for CI/CD using a set of tools and practices around the GitOps paradigm. For that, a Deployment Pipeline for the Customers application has been developed using Tekton. The following diagram depicts all tasks to be executed by the pipeline and its interaction with external systems and tools:
+Create a coolstore project
 
+Install pipelines operator
 
-![Pipeline Screenshot](docs/images/pipeline.png?raw=true "Pipeline Diagram")
+`oc new-project coolstore`
+### Deploy customers service
 
-Each of these tasks can be described as follows:
+Deploy postgresql for customers service
 
-- **Clone Repository** downloads the source code from the target Git repository.
+`oc new-app \
+    --name="customers-db" \
+    -e POSTGRESQL_USER=customers \
+    -e POSTGRESQL_PASSWORD=customers \
+    -e POSTGRESQL_DATABASE=customers \
+     --image-stream="openshift/postgresql:13-el7"`
 
-- **Build from Source** builds the application artifact from source code. This task has been tweaked to allow selecting the target subdirectory from the repository in which the target application source is available, allowing to have several application/components available in a single repository. **This way of versioning different services/components is highly discouraged**, as the optimal approach would be to have a dedicated repository for each component, since their lifecycle should be independent. Nevertheless, this choice was made to gather all demo materials on a single repository for simplicity purposes.
+Run `helm install -f helm/customers-tomcat-ocp/values.yaml customers helm/customers-tomcat-ocp/`
 
-- **Build image** uses the Dockerfile packaged on the root directory of an application to build and image and push it to the target registry. The image will be tagged with the short commit hash of the source it contains.
+run `oc apply -f ./ocp-deploy/customers-pipeline-run.yaml`
 
-- **Update Manifest** uses the short commit hash tag to update the application manifests in Git and point to the newly built image. Application deployment is then delegated to ArgoCD, which is continuously polling the configuration repository for changes and creates/updates all OpenShift objects accordingly.
+## deploy order service
 
-The pipeline accepts the following parameters:
+`oc new-app \
+    --name="postgresql-orders" \
+    -e POSTGRESQL_USER=orders \
+    -e POSTGRESQL_PASSWORD=orders \
+    -e POSTGRESQL_DATABASE=orders \
+     --image-stream="openshift/postgresql:13-el7"`
 
-- **git-url**: URL of the target Git repository.
-- **git-branch**: target branch to work with. Defaults to main.
-- **app-subdir**: Subdirectory from the repository in which the application source code is stored.
-- **target-namespace**: Namespace/project in which to deploy the application.
-- **target-registry**: Registry to push the built image to. Defaults to the internal OCP registry (image-registry.openshift-image-registry.svc:5000).
+Run `helm install -f helm/orders/values.yaml orders helm/orders/`
+     
+## deploy inventory service
 
+`oc new-app \
+    --name="postgresql-inventory" \
+    -e POSTGRESQL_USER=inventory \
+    -e POSTGRESQL_PASSWORD=inventory \
+    -e POSTGRESQL_DATABASE=inventory \
+     --image-stream="openshift/postgresql:13-el7"`
 
-### Pushing to a Git repository with credentials
+     Run `helm install -f helm/inventory/values.yaml inventory helm/inventory/`
 
-As the pipeline requires pushing to a Git repository to update manifests and trigger Argo CD synchronizations, it is necessary to provide credentials for the git related tasks (in this case the update-manifest task). For this, a secret has to be created with valid credentials to push to the application repository. This secret [requires a concrete format for Tekton to create the git credentials in the containers properly](https://docs.openshift.com/container-platform/4.9/cicd/pipelines/authenticating-pipelines-using-git-secret.html#op-configuring-basic-authentication-for-git_authenticating-pipelines-using-git-secret), and a YAML file with its definition has been included as well in the *tekton* directory of this repository, looking as follows:
+## deploy gateway service
 
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: git-user-pass
-  annotations:
-    tekton.dev/git-0: <REPOSITORY DOMAIN, FOR EXAMPLE https://github.com>
-type: kubernetes.io/basic-auth
-stringData:
-  username: <USERNAME WITH PERMISSION TO PUSH TO THE TARGET REPOSITORY>
-  password: <PASSWORD>
-```
+Run `helm install -f helm/gateway/values.yaml gateway helm/gateway/`
+       
+## deploy frontend service
 
-Edit the file and enter valid credentials for your repository and its domain (for example https://github.com if it is hosted in GitHub).
+Run `helm install -f helm/frontend/values.yaml frontend helm/frontend/`
 
-### Accessing registry.redhat.io
+## Accessing the front-end
 
-The Customers application uses the [JBoss Web Server 5.6 (OpenJDK11) on UBI 8](https://catalog.redhat.com/software/containers/jboss-webserver-5/jws56-openjdk11-openshift-rhel8/610be90f6bbb00c64eecdaf3) image available in registry.redhat.io. As [this registry requires authentication](https://access.redhat.com/RegistryAuthentication), a service account linked to a pull secret for the registry is required to pull images from it in the buildah task [as stated in the Tekton documentation](https://tekton.dev/docs/pipelines/auth/#configuring-docker-authentication-for-docker). In order for it to work, first create a [registry service account for registry.redhat.io using a Red Hat account](https://access.redhat.com/terms-based-registry/) and download the associated pull secret, which should look similar to this:
+Click on the external link from the ordersfrontend deployment.  You will see a ui as shown below:
 
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: my-red-hat-account-pull-secret
-data:
-  .dockerconfigjson:
-  <contents of the generated config.json file in base64>
-type: kubernetes.io/dockerconfigjson
-```
-
-Once the file is downloaded, create the secret in OCP with the following command:
-
-```
-oc create -f my-red-hat-account-pull-secret.yaml
-```
-
-### Associating the git and pull secrets to the pipeline service Account
-
-Once the secrets to access the Git repository and the Red Hat registry have been created, the next step to allow the pipeline to access them is associating the secrets to the *pipeline* service account that is used by default in OCP to execute pipelines. It can be done with the following command:
-
-```
-oc patch serviceaccount pipeline -p '{"secrets": [{"name": "my-red-hat-account-pull-secret"},{"name": "git-user-pass"}]}'
-```
-
-### Creating pipeline resources
-
-Once the secrets have been setup following the instructions of the previous points, all pipeline resources can be created easily with a single command. From the root directory of this repository, execute the following command:
-
-```
-oc create -f ./customers-tomcat-gitops/tekton
-```
-
-### Running the Pipeline
-
-Once all setup is done, the pipeline will have to be run to build the image for the Customer application, indicating the customers-tomcat-gitops component directory. In order to run the pipeline, [the tkn CLI will have to be installed](https://docs.openshift.com/container-platform/4.9/cli_reference/tkn_cli/installing-tkn.html). For example, the command and interaction to provide the parameters would be the following:
-
-```
-$ tkn pipeline start customers-deployment-pipeline
-? Value for param `git-url` of type `string`? https://github.com/rromannissen/appmod-enablement.git
-? Value for param `git-branch` of type `string`? (Default is `main`) main
-? Value for param `app-subdir` of type `string`? customers-tomcat-gitops
-? Value for param `target-namespace` of type `string`? (Default is `retail`) retail
-? Value for param `target-registry` of type `string`? (Default is `image-registry.openshift-image-registry.svc:5000`) image-registry.openshift-image-registry.svc:5000
-Please give specifications for the workspace: ws
-? Name for the workspace : ws
-? Value of the Sub Path :  
-?  Type of the Workspace : pvc
-? Value of Claim Name : customers-pvc
-```
-
-A pvc for the customers service has been provided in the Tekton configuration to avoid having to download dependencies on each run of the pipeline. The definition for this pvc is also available in the *customers-tomcat-gitops/tekton* subdirectory in this repository.
-
-## Application Configuration Model for GitOps
-
-Both application and deployment configuration for each component have been modeled using Helm Charts. Each component directory contains a **helm** subdirectory in which the chart is available. All deployment configuration is included in the **values.yaml** available in the root of the **helm** directory. Application configuration is available as configuration files in both the **config** and **secret** subdirectories within the Helm Chart. Non sensitive parameters should be included in the files inside the **config** subdirectory. Sensitive data such as passwords should be included in the files available in the **secret** subdirectory.
-
-This chart will create a ConfigMap containing the files inside the **config** subdirectory to be consumed by the applications via the Kubernetes API. Along with that, a Secret containing the files inside the **secret** subdirectory will be created as well, and mounted in the pod as a volume for the component to access the configuration files directly.
-
-
-### Granting permission for applications to access the Kubernetes API
-
-Most application components require access to the Kubernetes API in order to access the ConfigMap objects to obtain their configuration at startup. To do this, simply add the view role to the default service account:
-
-```
-kubectl create rolebinding default-view --clusterrole=view --serviceaccount=<NAMESPACE>:default --namespace=<NAMESPACE>
-```
-
-### Application databases
-
-As stated before, Orders and Inventory services require a PostgreSQL database instance, so the PosgreSQL Ephemeral template can be used. Data initialization is performed at application startup from import.sql and load.sql files.
-
-> **Note**: Object management for the required databases has been kept outside the application Helm charts for simplicity purposes. They will have to be created manually using the available templates in OCP prior to the application deployment or some components will fail to start properly or won't start at all.
+![Coosltore](docs/images/globex-customers.png "Customers page")
 
 ## Running Locally
 
