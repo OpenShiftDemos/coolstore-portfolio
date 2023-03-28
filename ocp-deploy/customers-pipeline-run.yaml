@@ -1,0 +1,28 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: customers-deployment-pipeline-run
+  namespace: coolstore
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    tekton.dev/pipeline: customers-deployment-pipeline
+spec:
+  params:
+    - name: git-url
+      value: 'https://github.com/OpenShiftDemos/coolstore-portfolio.git'
+    - name: git-branch
+      value: ocp
+    - name: app-subdir
+      value: customers-tomcat-gitops
+    - name: target-namespace
+      value: coolstore
+    - name: target-registry
+      value: 'image-registry.openshift-image-registry.svc:5000'
+  pipelineRef:
+    name: customers-deployment-pipeline
+  serviceAccountName: pipeline
+  timeout: 1h0m0s
+  workspaces:
+    - name: ws
+      persistentVolumeClaim:
+        claimName: customers-pvc

@@ -3,11 +3,9 @@ spring:
     url: jdbc:postgresql://postgresql-orders:5432/orders
     driver-class-name: org.postgresql.Driver
   jpa:
-    hibernate:
-      ddl-auto: create
-      jdbc:
-        lob:
-          non_contextual_creation: true
+    properties:
+      hibernate:
+        ddl-auto: create
 
 opentracing:
   jaeger:

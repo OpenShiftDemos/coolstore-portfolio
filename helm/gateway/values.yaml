@@ -12,7 +12,7 @@ replicaCount: 1
 health:
   livenessEndpoint: /actuator/health
   readinessEndpoint: /actuator/health
-  probeDelay: 5
+  probeDelay: 20
   probePeriod: 10
   probeTimeout: 2
 imageURL: "quay.io/openshiftlabs/app-mod-gateway:1.1"

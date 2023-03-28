@@ -1,0 +1,31 @@
+applicationName: customers
+targetEnvironment: dev
+
+port: 8080
+targetPort: 8080
+routes: []
+
+deploymentStrategy:
+  type: RollingUpdate
+  rollingMaxSurge: 25%
+  rollingMaxUnavailable: 20%
+replicaCount: 1
+health:
+  livenessEndpoint: /customers-tomcat-0.0.1-SNAPSHOT/actuator/health
+  readinessEndpoint: /customers-tomcat-0.0.1-SNAPSHOT/actuator/health
+  probeDelay: 10
+  probePeriod: 30
+  probeTimeout: 10
+
+image:
+  registry: image-registry.openshift-image-registry.svc:5000
+  account: coolstore
+  repository: customers-tomcat-gitops
+version: latest
+
+env: []
+
+customerDatabase:
+  hostname: customers-db
+  user: customers
+  password: customers

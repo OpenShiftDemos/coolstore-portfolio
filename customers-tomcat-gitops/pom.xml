@@ -115,7 +115,11 @@
 			<artifactId>ojdbc11</artifactId>
 			<version>21.1.0.0</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.5.4</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
