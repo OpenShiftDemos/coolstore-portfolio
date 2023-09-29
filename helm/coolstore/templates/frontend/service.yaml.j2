@@ -1,0 +1,14 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Values.frontend.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.frontend.name }}
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    deployment: {{ .Values.frontend.name }}

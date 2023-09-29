@@ -1,0 +1,62 @@
+{{- range .Values.databases }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .name }}
+    app.openshift.io/runtime: postgresql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: {{ .name }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: {{ .name }}
+    spec:
+      containers:
+      - name: {{ .name }}
+        image: {{ $.Values.postgresql.image }}
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: POSTGRESQL_DATABASE
+          value: {{ .name }}
+        - name: POSTGRESQL_USER
+          value: {{ .username }}
+        - name: POSTGRESQL_PASSWORD
+          value: {{ .password }}
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+        livenessProbe:
+          exec:
+            command:
+            - /usr/libexec/check-container
+            - --live
+          initialDelaySeconds: 120
+          timeoutSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - /usr/libexec/check-container
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+        resources:
+          limits:
+            memory: 512Mi
+        securityContext:
+          privileged: false
+        terminationMessagePath: /dev/termination-log
+        volumeMounts:
+        - mountPath: /var/lib/pgsql/data
+          name: {{ .name }}
+      volumes:
+      - emptyDir: {}
+        name: {{ .name }}
+{{- end }}

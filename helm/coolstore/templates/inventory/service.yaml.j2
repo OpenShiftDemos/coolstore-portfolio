@@ -1,0 +1,14 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Values.inventory.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.inventory.name }}
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    deployment: {{ .Values.inventory.name }}

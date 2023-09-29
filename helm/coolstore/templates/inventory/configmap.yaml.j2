@@ -1,0 +1,29 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.inventory.name }}-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.inventory.name }}
+data:
+  application.yaml: |-
+    quarkus:
+      kubernetes-client:
+        trust-certs: true
+      kubernetes-config:
+        enabled: true
+        config-maps:
+        - {{ .Values.inventory.name }}-config
+      hibernate-orm:
+        database:
+          generation: drop-and-create
+        sql-load-script: load.sql
+      datasource:
+        db-kind: postgresql
+        username: {{ .Values.inventory.database.username }}
+        password: {{ .Values.inventory.database.password }}
+        jdbc:
+          url: jdbc:postgresql://{{ .Values.inventory.database.name }}:5432/{{ .Values.inventory.database.name }}
+      log:
+        level: INFO

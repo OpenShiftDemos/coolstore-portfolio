@@ -1,0 +1,29 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.gateway.name }}-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.gateway.name }}
+data:
+  application.yaml: |-
+    services:
+      orders:
+        url: http://{{ .Values.orders.name }}:8080/orders
+      inventory:
+        url: http://{{ .Values.inventory.name }}:8080/products
+      customers:
+        url: http://tomcat.customers.svc.cluster.local:8080/customers
+    hystrix:
+      command:
+        ProductsCall:
+          execution:
+            isolation:
+              thread:
+                timeoutInMilliseconds: 2000
+      threadpool:
+        ProductsThreads:
+          coreSize: 20
+          maxQueueSize: 200
+          queueSizeRejectionThreshold: 200

@@ -1,0 +1,47 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Values.frontend.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.frontend.name }}
+    app.kubernetes.io/part-of: frontend
+    app.openshift.io/runtime: nodejs
+  annotations:
+    app.openshift.io/connects-to: {{ .Values.gateway.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: {{ .Values.frontend.name }}
+  template:
+    metadata:
+      labels:
+        deployment: {{ .Values.frontend.name }}
+    spec:
+      containers:
+      - name: {{ .Values.frontend.name }}
+        image: {{ .Values.frontend.image }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+        resources:
+          {{- toYaml .Values.gateway.resources | nindent 10 }}
+        volumeMounts:
+        - name: {{ .Values.frontend.name }}
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      volumes:
+        - name: {{ .Values.frontend.name }}
+          configMap:
+            name: {{ .Values.frontend.name }}
