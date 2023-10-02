@@ -37,6 +37,10 @@ spec:
             port: 8080
         resources:
           {{- toYaml .Values.gateway.resources | nindent 10 }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
         volumeMounts:
         - name: {{ .Values.frontend.name }}
           mountPath: /etc/nginx/nginx.conf
@@ -45,3 +49,7 @@ spec:
         - name: {{ .Values.frontend.name }}
           configMap:
             name: {{ .Values.frontend.name }}
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault

@@ -51,7 +51,9 @@ spec:
           limits:
             memory: 512Mi
         securityContext:
-          privileged: false
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
         terminationMessagePath: /dev/termination-log
         volumeMounts:
         - mountPath: /var/lib/pgsql/data
@@ -59,4 +61,8 @@ spec:
       volumes:
       - emptyDir: {}
         name: {{ .name }}
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
 {{- end }}

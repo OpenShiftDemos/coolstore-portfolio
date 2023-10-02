@@ -37,6 +37,10 @@ spec:
             port: 8080
         resources:
           {{- toYaml .Values.orders.resources | nindent 10 }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
         volumeMounts:
         - name: {{ .Values.orders.name }}
           mountPath: /deployments/config
@@ -44,3 +48,7 @@ spec:
         - name: {{ .Values.orders.name }}
           secret:
             secretName: {{ .Values.orders.name }}
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
