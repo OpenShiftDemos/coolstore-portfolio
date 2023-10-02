@@ -19,7 +19,7 @@ inventory:
   name: inventory
   image: quay.io/openshiftlabs/app-mod-inventory:1.0
   database:
-    name: inventory-db
+    url: jdbc:postgresql://inventory-db:5432/inventory-db
     username: redhat
     password: redhat
   resources:
@@ -33,7 +33,7 @@ orders:
   name: orders
   image: quay.io/openshiftlabs/app-mod-orders:1.0
   database:
-    name: orders-db
+    url: jdbc:postgresql://orders-db:5432/orders-db
     username: redhat
     password: redhat
   resources:

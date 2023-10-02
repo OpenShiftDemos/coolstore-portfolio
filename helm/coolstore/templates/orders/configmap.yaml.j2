@@ -10,7 +10,7 @@ data:
   application.yaml: |-
     spring:
       datasource:
-        url: jdbc:postgresql://{{ .Values.orders.database.name }}:5432/{{ .Values.orders.database.name }}
+        url: {{ .Values.orders.database.url }}
         driver-class-name: org.postgresql.Driver
       jpa:
         hibernate:

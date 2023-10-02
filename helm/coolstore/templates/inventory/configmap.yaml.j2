@@ -24,6 +24,6 @@ data:
         username: {{ .Values.inventory.database.username }}
         password: {{ .Values.inventory.database.password }}
         jdbc:
-          url: jdbc:postgresql://{{ .Values.inventory.database.name }}:5432/{{ .Values.inventory.database.name }}
+          url: {{ .Values.inventory.database.url }}
       log:
         level: INFO
