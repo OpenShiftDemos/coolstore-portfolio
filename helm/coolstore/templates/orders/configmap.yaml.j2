@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.orders.name }}-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.orders.name }}
+data:
+  application.yaml: |-
+    spring:
+      datasource:
+        url: {{ .Values.orders.database.url }}
+        driver-class-name: org.postgresql.Driver
+      jpa:
+        hibernate:
+          ddl-auto: create
+          jdbc:
+            lob:
+              non_contextual_creation: true

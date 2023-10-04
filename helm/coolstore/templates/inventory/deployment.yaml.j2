@@ -1,0 +1,47 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Values.inventory.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.inventory.name }}
+    app.kubernetes.io/part-of: backend
+    app.openshift.io/runtime: quarkus
+  annotations:
+    app.openshift.io/connects-to: {{ .Values.inventory.database.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: {{ .Values.inventory.name }}
+  template:
+    metadata:
+      labels:
+        deployment: {{ .Values.inventory.name }}
+    spec:
+      containers:
+      - name: {{ .Values.inventory.name }}
+        image: {{ .Values.inventory.image }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /q/health/live
+            port: 8080
+        readinessProbe:
+          httpGet:
+            path: /q/health/ready
+            port: 8080
+        resources:
+          {{- toYaml .Values.inventory.resources | nindent 10 }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
