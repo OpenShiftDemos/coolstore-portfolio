@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/part-of: backend
     app.openshift.io/runtime: quarkus
   annotations:
-    app.openshift.io/connects-to: {{ .Values.inventory.database.name }}
+    app.openshift.io/connects-to: {{ .Values.inventory.name }}-db
 spec:
   replicas: 1
   selector:
