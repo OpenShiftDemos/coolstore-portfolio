@@ -48,7 +48,7 @@ orders:
 
 customers:
   name: customers
-  image: quay.io/openshiftlabs/app-mod-customers:latest
+  image: quay.io/openshiftlabs/app-mod-customers:1.0
   database:
     url: jdbc:postgresql://customers-db:5432/customers-db
     username: redhat
