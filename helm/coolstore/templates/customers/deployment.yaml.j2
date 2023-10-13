@@ -1,0 +1,58 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Values.customers.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.customers.name }}
+    app.kubernetes.io/part-of: backend
+    app.openshift.io/runtime: tomcat
+  annotations:
+    app.openshift.io/connects-to: {{ .Values.customers.name }}-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: {{ .Values.customers.name }}
+  template:
+    metadata:
+      labels:
+        deployment: {{ .Values.customers.name }}
+    spec:
+      containers:
+      - name: {{ .Values.customers.name }}
+        image: {{ .Values.customers.image }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /customers-tomcat-0.0.1-SNAPSHOT/actuator/health
+            port: 8080
+        readinessProbe:
+          httpGet:
+            path: /customers-tomcat-0.0.1-SNAPSHOT/actuator/health
+            port: 8080
+        resources:
+          {{- toYaml .Values.customers.resources | nindent 10 }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        volumeMounts:
+        - name: {{ .Values.customers.name }}
+          mountPath: /opt/jws-5.7/tomcat/lib/persistence.properties
+          subPath: persistence.properties
+      volumes:
+      - name: {{ .Values.customers.name }}
+        secret:
+          secretName: {{ .Values.customers.name }}
+          items:
+            - key: persistence.properties
+              path: persistence.properties
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault

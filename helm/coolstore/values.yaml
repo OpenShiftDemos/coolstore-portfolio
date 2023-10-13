@@ -14,6 +14,9 @@ databases:
   - name: orders-db
     username: redhat
     password: redhat
+  - name: customers-db
+    username: redhat
+    password: redhat
 
 inventory:
   name: inventory
@@ -34,6 +37,20 @@ orders:
   image: quay.io/openshiftlabs/app-mod-orders:1.0
   database:
     url: jdbc:postgresql://orders-db:5432/orders-db
+    username: redhat
+    password: redhat
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      cpu: 10m
+      memory: 512Mi
+
+customers:
+  name: customers
+  image: quay.io/openshiftlabs/app-mod-customers:latest
+  database:
+    url: jdbc:postgresql://customers-db:5432/customers-db
     username: redhat
     password: redhat
   resources:
