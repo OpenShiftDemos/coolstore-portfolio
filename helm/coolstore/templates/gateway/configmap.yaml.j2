@@ -14,7 +14,7 @@ data:
       inventory:
         url: http://{{ .Values.inventory.name }}:8080/products
       customers:
-        url: http://tomcat.customers.svc.cluster.local:8080/customers
+        url: http://{{ .Values.inventory.name }}:8080/:8080/customers
     hystrix:
       command:
         ProductsCall:
