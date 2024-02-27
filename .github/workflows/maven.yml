@@ -44,6 +44,12 @@ jobs:
     - name: Build with Maven
       working-directory: ./gateway
       run: mvn -B package -DskipTests --file pom.xml
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifact
+        path: ./target/gateway-2.0.0-SNAPSHOT-exec.jar
+        retention-days: 1
     - name: Build and publish image to Quay
       uses: docker/build-push-action@v1
       with:
@@ -75,3 +81,4 @@ jobs:
       #         TAGS+=("git-${BASH_REMATCH[1]}")
       #     fi
       #     ( IFS=$','; echo "${TAGS[*]}" )
+# gateway-2.0.0-SNAPSHOT-exec.jar
