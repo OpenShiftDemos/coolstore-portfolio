@@ -35,7 +35,7 @@ jobs:
       with:
         path: 'gateway'
         registry: 'quay.io'
-        repository: 'testing'
+        repository: 'openshiftlabs/testing'
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
         tags: 'latest'
