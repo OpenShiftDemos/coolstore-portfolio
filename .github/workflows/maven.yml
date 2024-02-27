@@ -53,6 +53,7 @@ jobs:
   build-image:
     needs: build-artifact
     environment: prod
+    runs-on: ubuntu-latest
     steps:
     # - name: Build and publish image to Quay
     #   uses: docker/build-push-action@v1
