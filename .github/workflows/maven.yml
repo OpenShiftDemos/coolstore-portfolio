@@ -52,10 +52,9 @@ jobs:
           fi
           ( IFS=$','; echo "${TAGS[*]}" )
       - name: Build and publish image to Quay
-        working-directory: ./gateway
         uses: docker/build-push-action@v1
         with:
-          path: ${{ env.context }}
+          path: './gateway'
           registry: 'quay.io'
           repository: 'app-mod-gateway'
           username: ${{ secrets.REGISTRY_USERNAME }}
