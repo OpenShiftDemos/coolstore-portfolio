@@ -45,6 +45,7 @@ jobs:
       working-directory: ./gateway
       run: mvn -B package -DskipTests --file pom.xml
     - name: Upload artifact
+      working-directory: ./gateway
       uses: actions/upload-artifact@v2
       with:
         name: artifact
