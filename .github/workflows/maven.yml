@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Guild gateway artifact
+name: Build gateway artifact
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
-        java-version: '17'
+        java-version: '8'
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
