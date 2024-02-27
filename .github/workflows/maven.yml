@@ -50,7 +50,7 @@ jobs:
         name: artifact
         path: ./gateway/target/gateway-2.0.0-SNAPSHOT-exec.jar
         retention-days: 1
-  build-image
+  build-image:
     needs: build-artifact
     environment: prod
     steps:
