@@ -56,7 +56,7 @@ jobs:
         with:
           path: './gateway'
           registry: 'quay.io'
-          repository: 'app-mod-gateway'
+          repository: 'testing'
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
-          tags: ('latest')
+          tags: 'latest'
