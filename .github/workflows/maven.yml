@@ -70,9 +70,17 @@ jobs:
         with:
           name: artifact
           path: ./gateway/target
-      - name: Build the Docker image
-        working-directory: ./gateway
-        run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      - name: Build and export
+        uses: docker/build-push-action@v5
+        with:
+          context: ./gateway
+          tags: gateway:latest
+          outputs: type=docker,dest=/tmp/gateway.tar
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: gateway
+          path: /tmp/gateway.tar
   # deployment:
   #   needs: build
     
