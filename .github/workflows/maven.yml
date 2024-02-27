@@ -30,6 +30,34 @@ jobs:
     - name: Build with Maven
       working-directory: ./gateway
       run: mvn -B package --file pom.xml
-    - name: Build the Docker image
-      working-directory: ./gateway
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    # - name: Build the Docker image
+    #   working-directory: ./gateway
+    #   run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+  deployment:
+    environment: prod
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Get image tags
+        id: image_tags
+        run: |
+          echo -n ::set-output name=IMAGE_TAGS::
+          VERSION=$(jq -r '.version' ${context}/version.json)
+          TAGS=('latest')
+          if [ "${VERSION}" ] && [ "${VERSION}" != "latest" ]; then
+              TAGS+=("${VERSION}")
+          fi
+          if [[ "${GITHUB_REF}" =~ refs/tags/(.*) ]]; then
+              TAGS+=("git-${BASH_REMATCH[1]}")
+          fi
+          ( IFS=$','; echo "${TAGS[*]}" )
+      - name: Build and publish image to Quay
+        working-directory: ./gateway
+        uses: docker/build-push-action@v1
+        with:
+          path: ${{ env.context }}
+          registry: 'quay.io'
+          repository: 'app-mod-gateway'
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+          tags: ('latest')
