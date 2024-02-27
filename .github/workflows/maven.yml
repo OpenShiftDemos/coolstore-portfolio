@@ -30,6 +30,7 @@ jobs:
       working-directory: ./gateway
       run: mvn test --file pom.xml
   build:
+    needs: test
     environment: prod
     runs-on: ubuntu-latest
     steps:
