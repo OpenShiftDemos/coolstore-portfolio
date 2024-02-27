@@ -55,7 +55,7 @@ jobs:
       - name: Build and publish image to Quay
         uses: docker/build-push-action@v1
         with:
-          path: '/gateway'
+          path: 'gateway'
           registry: 'quay.io'
           repository: 'testing'
           username: ${{ secrets.REGISTRY_USERNAME }}
