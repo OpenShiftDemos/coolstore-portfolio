@@ -6,6 +6,9 @@ spring:
     properties:
       hibernate:
         ddl-auto: create
+        jdbc:
+          lob:
+            non_contextual_creation: true
 
 opentracing:
   jaeger:
