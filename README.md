@@ -38,7 +38,7 @@ Install pipelines operator
 Deploy postgresql for customers service
 
 `oc new-app \
-    --name="customers-db" \
+    --name=customers-db \
     -e POSTGRESQL_USER=customers \
     -e POSTGRESQL_PASSWORD=customers \
     -e POSTGRESQL_DATABASE=customers \
@@ -51,7 +51,7 @@ run `oc apply -f ./ocp-deploy/customers-pipeline-run.yaml`
 ## deploy order service
 
 `oc new-app \
-    --name="postgresql-orders" \
+    --name=postgresql-orders \
     -e POSTGRESQL_USER=orders \
     -e POSTGRESQL_PASSWORD=orders \
     -e POSTGRESQL_DATABASE=orders \
@@ -62,7 +62,7 @@ Run `helm install -f helm/orders/values.yaml orders helm/orders/`
 ## deploy inventory service
 
 `oc new-app \
-    --name="postgresql-inventory" \
+    --name=postgresql-inventory \
     -e POSTGRESQL_USER=inventory \
     -e POSTGRESQL_PASSWORD=inventory \
     -e POSTGRESQL_DATABASE=inventory \

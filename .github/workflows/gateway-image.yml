@@ -65,27 +65,7 @@ jobs:
         with:
           path: 'gateway'
           registry: 'quay.io'
-          repository: 'openshiftlabs/testing'
+          repository: 'openshiftlabs/app-mod-gateway'
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
           tags: 'latest'
-  # deployment:
-  #   needs: build
-    
-  #   runs-on: ubuntu-latest
-  #   steps:
-      # - uses: actions/checkout@master
-      # - name: Get image tags
-      #   id: image_tags
-      #   run: |
-      #     echo -n ::set-output name=IMAGE_TAGS::
-      #     VERSION=$(jq -r '.version' ${context}/version.json)
-      #     TAGS=('latest')
-      #     if [ "${VERSION}" ] && [ "${VERSION}" != "latest" ]; then
-      #         TAGS+=("${VERSION}")
-      #     fi
-      #     if [[ "${GITHUB_REF}" =~ refs/tags/(.*) ]]; then
-      #         TAGS+=("git-${BASH_REMATCH[1]}")
-      #     fi
-      #     ( IFS=$','; echo "${TAGS[*]}" )
-# gateway-2.0.0-SNAPSHOT-exec.jar
