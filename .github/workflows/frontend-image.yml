@@ -1,0 +1,39 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Build gateway artifact
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up node 16
+      uses: actions/setup-node@v4
+      with:
+        java-version: '16'
+    - name: Build with node
+      working-directory: ./frontend
+    - run:  npm install
+    - run:  npm run build
+    - name: Build and publish image to Quay
+      uses: docker/build-push-action@v1
+      with:
+        path: 'frontend'
+        registry: 'quay.io'
+        repository: 'openshiftlabs/app-mod-ordersfrontend'
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+        tags: 'latest'
