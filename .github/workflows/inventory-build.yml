@@ -40,6 +40,9 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
+    - name: Build with Maven
+      working-directory: ./inventory
+      run: ./mvnw package -DskipTests 
     - name: Build and publish image to Quay
       uses: docker/build-push-action@v1
       with:
