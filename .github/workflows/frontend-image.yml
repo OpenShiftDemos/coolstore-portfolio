@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Build gateway artifact
+name: Build frontend artifact
 
 on:
   push:
@@ -28,6 +28,7 @@ jobs:
       working-directory: ./frontend
       run:  npm install
     - run:  npm run build
+      working-directory: ./frontend
     - name: Build and publish image to Quay
       uses: docker/build-push-action@v1
       with:
