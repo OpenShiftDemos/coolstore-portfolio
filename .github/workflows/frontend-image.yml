@@ -23,7 +23,7 @@ jobs:
     - name: Set up node 16
       uses: actions/setup-node@v4
       with:
-        java-version: '16'
+        node-version: '16'
     - name: Build with node
       working-directory: ./frontend
     - run:  npm install
