@@ -64,7 +64,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           path: 'customers-tomcat-gitops'
-          file: 'Dockerfile.legacy'
+          file: 'customers-tomcat-gitops/Dockerfile.legacy'
           registry: 'quay.io'
           repository: 'openshiftlabs/app-mod-customers'
           username: ${{ secrets.REGISTRY_USERNAME }}
