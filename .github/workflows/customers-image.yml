@@ -63,7 +63,7 @@ jobs:
       - name: Build and publish image to Quay
         uses: docker/build-push-action@v5
         with:
-          path: 'customers-tomcat-gitops'
+          context: 'customers-tomcat-gitops'
           file: 'customers-tomcat-gitops/Dockerfile.pipeline'
           registry: 'quay.io'
           repository: 'openshiftlabs/app-mod-customers'
