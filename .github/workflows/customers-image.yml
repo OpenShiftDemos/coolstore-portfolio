@@ -69,4 +69,4 @@ jobs:
           file: 'customers-tomcat-gitops/Dockerfile.pipeline'
           push: true
           tags: |
-            openshiftlabs/app-mod-customers:latest
+            quay.io/openshiftlabs/app-mod-customers:latest
