@@ -27,7 +27,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Run Tests
-      working-directory: ./customers
+      working-directory: ./customers-tomcat-gitops
       run: mvn test --file pom.xml
   build-artifact:
     needs: test
@@ -41,13 +41,13 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      working-directory: ./customers
+      working-directory: ./customers-tomcat-gitops
       run: mvn -B package -DskipTests --file pom.xml
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
         name: artifact
-        path: ./customers/target/customers-tomcat-0.0.1-SNAPSHOT.war
+        path: ./customers-tomcat-gitops/target/customers-tomcat-0.0.1-SNAPSHOT.war
         retention-days: 1
   build-and-push-image:
     needs: build-artifact
@@ -59,11 +59,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: artifact
-          path: ./customers/target
+          path: ./customers-tomcat-gitops/target
       - name: Build and publish image to Quay
         uses: docker/build-push-action@v1
         with:
-          path: 'customers'
+          path: 'customers-tomcat-gitops'
           file: 'Dockerfile.legacy'
           registry: 'quay.io'
           repository: 'openshiftlabs/app-mod-customers'
