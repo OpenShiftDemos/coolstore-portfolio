@@ -60,13 +60,17 @@ jobs:
         with:
           name: artifact
           path: ./customers-tomcat-gitops/target
+      - name: Login to quay Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
       - name: Build and publish image to Quay
         uses: docker/build-push-action@v5
         with:
           context: 'customers-tomcat-gitops'
           file: 'customers-tomcat-gitops/Dockerfile.pipeline'
-          registry: 'quay.io'
-          repository: 'openshiftlabs/app-mod-customers'
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-          tags: 'latest'
+          push: true
+          tags: |
+            openshiftlabs/app-mod-customers:latest
