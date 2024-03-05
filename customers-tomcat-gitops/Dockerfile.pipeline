@@ -1,0 +1,3 @@
+FROM 9.0.86-jdk17-temurin-jammy
+
+COPY target/*.war /deployments
