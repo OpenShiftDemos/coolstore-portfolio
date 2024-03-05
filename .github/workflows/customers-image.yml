@@ -61,7 +61,7 @@ jobs:
           name: artifact
           path: ./customers-tomcat-gitops/target
       - name: Build and publish image to Quay
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v5
         with:
           path: 'customers-tomcat-gitops'
           file: 'Dockerfile.legacy'
